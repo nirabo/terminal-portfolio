@@ -1,24 +1,42 @@
+name: terminal-portfolio
+
 services:
-  # Development service
+  # Development service (default profile)
   dev:
     build:
       context: .
-      target: builder
+      target: dev
     command: pnpm dev
     ports:
-      - "3000:3000"
+      - "5173:5173" # Vite's default port
     volumes:
       - .:/app
       - /app/node_modules
     environment:
       - NODE_ENV=development
       - VITE_CONFIG_GIST_URL=${VITE_CONFIG_GIST_URL}
+    profiles: ["dev"]
+    # Enable hot reload
+    develop:
+      watch:
+        - path: ./package.json
+          action: rebuild
+        - path: ./pnpm-lock.yaml
+          action: rebuild
 
   # Production service
   prod:
-    build: .
+    build:
+      context: .
+      target: production
     ports:
-      - "80:80"
+      - "5080:80"
     environment:
       - NODE_ENV=production
       - VITE_CONFIG_GIST_URL=${VITE_CONFIG_GIST_URL}
+    profiles: ["prod"]
+    restart: unless-stopped
+
+# Set default profile to dev
+x-profiles:
+  dev: true

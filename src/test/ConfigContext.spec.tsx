@@ -1,5 +1,5 @@
-import { vi, describe, it, expect, beforeEach, afterAll } from 'vitest';
-import { render, screen, waitFor } from '@testing-library/react';
+import { vi, describe, it, expect, beforeEach, afterAll } from "vitest";
+import { render, screen, waitFor } from "@testing-library/react";
 
 // Create a mutable version of ImportMetaEnv for testing
 type MutableImportMetaEnv = {
@@ -7,15 +7,15 @@ type MutableImportMetaEnv = {
 };
 
 // Mock the module before importing
-vi.mock('../ConfigContext', async () => {
-
+vi.mock("../ConfigContext", async () => {
   // Create base mock environment
   const mockEnv: MutableImportMetaEnv = {
-    MODE: 'test',
+    MODE: "test",
     DEV: true,
     PROD: false,
-    BASE_URL: '/',
-    VITE_CONFIG_GIST_URL: undefined
+    SSR: false,
+    BASE_URL: "/",
+    VITE_CONFIG_GIST_URL: "",
   };
 
   // Create a proxy to handle property assignments
@@ -23,22 +23,24 @@ vi.mock('../ConfigContext', async () => {
     set(target: MutableImportMetaEnv, prop: string, value: unknown) {
       target[prop] = value;
       return true;
-    }
+    },
   });
 
   // Mock import.meta
-  vi.stubGlobal('import', {
+  vi.stubGlobal("import", {
     meta: {
-      env: envProxy
-    }
+      env: envProxy,
+    },
   });
 
-  const actual = await vi.importActual<typeof import('../ConfigContext')>('../ConfigContext');
+  const actual = await vi.importActual<typeof import("../ConfigContext")>(
+    "../ConfigContext"
+  );
   return actual;
 });
 
 // Now import the components that use import.meta.env
-import { ConfigProvider, useConfig } from '../ConfigContext';
+import { ConfigProvider, useConfig } from "../ConfigContext";
 
 // Mock component to test the useConfig hook
 const TestComponent = () => {
@@ -53,21 +55,25 @@ const TestComponent = () => {
   );
 };
 
-describe('ConfigContext', () => {
-  const mockGistUrl = 'https://api.github.com/gists/123';
+describe("ConfigContext", () => {
+  const mockGistUrl = "https://api.github.com/gists/123";
   beforeAll(() => {
     // Mock console methods to suppress expected logs
-    vi.spyOn(console, 'log').mockImplementation(() => { /* no-op */ });
-    vi.spyOn(console, 'error').mockImplementation(() => { /* no-op */ });
+    vi.spyOn(console, "log").mockImplementation(() => {
+      /* no-op */
+    });
+    vi.spyOn(console, "error").mockImplementation(() => {
+      /* no-op */
+    });
   });
 
   beforeEach(() => {
     // Reset mocks before each test
     vi.resetModules();
     vi.clearAllMocks();
-    
+
     // Reset fetch mock
-    global.fetch = vi.fn().mockRejectedValue(new Error('Fetch not mocked'));
+    global.fetch = vi.fn().mockRejectedValue(new Error("Fetch not mocked"));
   });
 
   afterAll(() => {
@@ -75,7 +81,7 @@ describe('ConfigContext', () => {
     vi.restoreAllMocks(); // Restore console methods
   });
 
-  it('loads default config when no gist URL is provided', async () => {
+  it("loads default config when no gist URL is provided", async () => {
     render(
       <ConfigProvider>
         <TestComponent />
@@ -83,40 +89,41 @@ describe('ConfigContext', () => {
     );
 
     await waitFor(() => {
-      expect(screen.getByTestId('name')).toHaveTextContent('Your Name');
-      expect(screen.getByTestId('title')).toHaveTextContent('Your Job Title');
+      expect(screen.getByTestId("name")).toHaveTextContent("Your Name");
+      expect(screen.getByTestId("title")).toHaveTextContent("Your Job Title");
     });
   });
 
-  it('loads and transforms gist config successfully', async () => {
+  it("loads and transforms gist config successfully", async () => {
     // Update env through the proxy
-    (import.meta.env as MutableImportMetaEnv).VITE_CONFIG_GIST_URL = mockGistUrl;
+    (import.meta.env as MutableImportMetaEnv).VITE_CONFIG_GIST_URL =
+      mockGistUrl;
 
     // Mock successful gist response
     const mockGistData = {
-      name: 'John Doe',
-      title: 'Software Engineer',
-      summary: 'Experienced developer',
+      name: "John Doe",
+      title: "Software Engineer",
+      summary: "Experienced developer",
       experience: [
         {
-          role: 'Senior Dev',
-          description: 'Led team projects',
-          url: 'https://company.com'
-        }
+          role: "Senior Dev",
+          description: "Led team projects",
+          url: "https://company.com",
+        },
       ],
       education: [
         {
-          school: 'Tech University',
-          field: 'Computer Science',
-          graduationYear: '2020'
-        }
-      ]
+          school: "Tech University",
+          field: "Computer Science",
+          graduationYear: "2020",
+        },
+      ],
     };
 
     global.fetch = vi.fn().mockImplementation(() =>
       Promise.resolve({
         ok: true,
-        json: () => Promise.resolve({ contents: JSON.stringify(mockGistData) })
+        json: () => Promise.resolve({ contents: JSON.stringify(mockGistData) }),
       })
     );
 
@@ -127,20 +134,23 @@ describe('ConfigContext', () => {
     );
 
     await waitFor(() => {
-      expect(screen.getByTestId('name')).toHaveTextContent('John Doe');
-      expect(screen.getByTestId('title')).toHaveTextContent('Software Engineer');
-      expect(screen.getByTestId('projects')).toHaveTextContent('1'); // Converted from experience
-      expect(screen.getByTestId('education')).toHaveTextContent('1');
+      expect(screen.getByTestId("name")).toHaveTextContent("John Doe");
+      expect(screen.getByTestId("title")).toHaveTextContent(
+        "Software Engineer"
+      );
+      expect(screen.getByTestId("projects")).toHaveTextContent("1"); // Converted from experience
+      expect(screen.getByTestId("education")).toHaveTextContent("1");
     });
   });
 
-  it('falls back to default config on fetch error', async () => {
+  it("falls back to default config on fetch error", async () => {
     // Update env through the proxy
-    (import.meta.env as MutableImportMetaEnv).VITE_CONFIG_GIST_URL = mockGistUrl;
+    (import.meta.env as MutableImportMetaEnv).VITE_CONFIG_GIST_URL =
+      mockGistUrl;
 
-    global.fetch = vi.fn().mockImplementation(() =>
-      Promise.reject(new Error('Network error'))
-    );
+    global.fetch = vi
+      .fn()
+      .mockImplementation(() => Promise.reject(new Error("Network error")));
 
     render(
       <ConfigProvider>
@@ -149,19 +159,20 @@ describe('ConfigContext', () => {
     );
 
     await waitFor(() => {
-      expect(screen.getByTestId('name')).toHaveTextContent('Your Name');
-      expect(screen.getByTestId('title')).toHaveTextContent('Your Job Title');
+      expect(screen.getByTestId("name")).toHaveTextContent("Your Name");
+      expect(screen.getByTestId("title")).toHaveTextContent("Your Job Title");
     });
   });
 
-  it('handles malformed gist data gracefully', async () => {
+  it("handles malformed gist data gracefully", async () => {
     // Update env through the proxy
-    (import.meta.env as MutableImportMetaEnv).VITE_CONFIG_GIST_URL = mockGistUrl;
+    (import.meta.env as MutableImportMetaEnv).VITE_CONFIG_GIST_URL =
+      mockGistUrl;
 
     global.fetch = vi.fn().mockImplementation(() =>
       Promise.resolve({
         ok: true,
-        json: () => Promise.resolve({ contents: 'invalid json' })
+        json: () => Promise.resolve({ contents: "invalid json" }),
       })
     );
 
@@ -172,32 +183,34 @@ describe('ConfigContext', () => {
     );
 
     await waitFor(() => {
-      expect(screen.getByTestId('name')).toHaveTextContent('Your Name');
-      expect(screen.getByTestId('title')).toHaveTextContent('Your Job Title');
+      expect(screen.getByTestId("name")).toHaveTextContent("Your Name");
+      expect(screen.getByTestId("title")).toHaveTextContent("Your Job Title");
     });
   });
 
-  it('transforms partial gist data correctly', async () => {
+  it("transforms partial gist data correctly", async () => {
     // Update env through the proxy
-    (import.meta.env as MutableImportMetaEnv).VITE_CONFIG_GIST_URL = mockGistUrl;
+    (import.meta.env as MutableImportMetaEnv).VITE_CONFIG_GIST_URL =
+      mockGistUrl;
 
     // Mock partial data with missing fields
     const mockPartialData = {
-      name: 'Jane Doe',
+      name: "Jane Doe",
       // Missing title, should use default
       experience: [
         {
-          role: 'Developer',
-          description: 'Built features'
-        }
-      ]
+          role: "Developer",
+          description: "Built features",
+        },
+      ],
       // Missing education, should use default
     };
 
     global.fetch = vi.fn().mockImplementation(() =>
       Promise.resolve({
         ok: true,
-        json: () => Promise.resolve({ contents: JSON.stringify(mockPartialData) })
+        json: () =>
+          Promise.resolve({ contents: JSON.stringify(mockPartialData) }),
       })
     );
 
@@ -208,10 +221,10 @@ describe('ConfigContext', () => {
     );
 
     await waitFor(() => {
-      expect(screen.getByTestId('name')).toHaveTextContent('Jane Doe');
-      expect(screen.getByTestId('title')).toHaveTextContent('Your Job Title'); // Default
-      expect(screen.getByTestId('projects')).toHaveTextContent('1'); // From experience
-      expect(screen.getByTestId('education')).toHaveTextContent('1'); // Default
+      expect(screen.getByTestId("name")).toHaveTextContent("Jane Doe");
+      expect(screen.getByTestId("title")).toHaveTextContent("Your Job Title"); // Default
+      expect(screen.getByTestId("projects")).toHaveTextContent("1"); // From experience
+      expect(screen.getByTestId("education")).toHaveTextContent("1"); // Default
     });
   });
 });

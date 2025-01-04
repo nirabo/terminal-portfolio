@@ -121,7 +121,7 @@ You can run this application using Docker in both development and production mod
 - Docker
 - Docker Compose
 
-### Development
+### Development (Default)
 
 1. Copy the environment file:
    ```bash
@@ -132,19 +132,33 @@ You can run this application using Docker in both development and production mod
 
 3. Start the development container:
    ```bash
-   docker compose up dev
+   docker compose up
    ```
 
-The development server will be available at http://localhost:3000
+The development server will be available at http://localhost:5173
 
 ### Production
 
 1. Build and start the production container:
    ```bash
-   docker compose up prod -d
+   docker compose --profile prod up -d
    ```
 
-The production build will be available at http://localhost:80
+The production build will be available at http://localhost:5080
+
+### Docker Profiles
+
+The project uses Docker Compose profiles to separate development and production configurations:
+
+- Development (default): `docker compose up`
+  - Hot reloading enabled
+  - Source code mounted as volume
+  - Runs on port 5173
+
+- Production: `docker compose --profile prod up`
+  - Optimized production build
+  - Served via Nginx
+  - Runs on port 5080
 
 ### Environment Variables
 

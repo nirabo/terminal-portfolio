@@ -13,6 +13,14 @@ export default defineConfig({
       registerType: "autoUpdate",
     }),
   ],
+  server: {
+    host: true, // Listen on all addresses
+    port: 5173,
+    strictPort: true, // Fail if port is already in use
+    watch: {
+      usePolling: true, // Enable polling for Docker volumes
+    },
+  },
   test: {
     globals: true,
     environment: 'jsdom',

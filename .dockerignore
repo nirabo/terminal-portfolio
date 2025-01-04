@@ -1,0 +1,33 @@
+# Dependencies
+node_modules
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# Build output
+dist
+coverage
+
+# Environment and config
+.env*
+.git
+.gitignore
+.dockerignore
+.eslintrc*
+.prettierrc*
+.eslintignore
+.prettierignore
+
+# Docker
+Dockerfile
+docker-compose.yml
+
+# IDE
+.vscode
+.idea
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
