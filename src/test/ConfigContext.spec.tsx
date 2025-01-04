@@ -1,6 +1,44 @@
+import { vi, describe, it, expect, beforeEach, afterAll } from 'vitest';
 import { render, screen, waitFor } from '@testing-library/react';
+
+// Create a mutable version of ImportMetaEnv for testing
+type MutableImportMetaEnv = {
+  -readonly [K in keyof ImportMetaEnv]: ImportMetaEnv[K];
+};
+
+// Mock the module before importing
+vi.mock('../ConfigContext', async () => {
+
+  // Create base mock environment
+  const mockEnv: MutableImportMetaEnv = {
+    MODE: 'test',
+    DEV: true,
+    PROD: false,
+    BASE_URL: '/',
+    VITE_CONFIG_GIST_URL: undefined
+  };
+
+  // Create a proxy to handle property assignments
+  const envProxy = new Proxy<MutableImportMetaEnv>(mockEnv, {
+    set(target: MutableImportMetaEnv, prop: string, value: unknown) {
+      target[prop] = value;
+      return true;
+    }
+  });
+
+  // Mock import.meta
+  vi.stubGlobal('import', {
+    meta: {
+      env: envProxy
+    }
+  });
+
+  const actual = await vi.importActual<typeof import('../ConfigContext')>('../ConfigContext');
+  return actual;
+});
+
+// Now import the components that use import.meta.env
 import { ConfigProvider, useConfig } from '../ConfigContext';
-import { vi, describe, it, expect, beforeEach } from 'vitest';
 
 // Mock component to test the useConfig hook
 const TestComponent = () => {
@@ -17,27 +55,24 @@ const TestComponent = () => {
 
 describe('ConfigContext', () => {
   const mockGistUrl = 'https://api.github.com/gists/123';
-  beforeEach(() => {
-    // Reset mocks and spies
-    vi.restoreAllMocks();
-    vi.resetModules();
-    
-    // Mock fetch to return error by default
-    global.fetch = vi.fn().mockRejectedValue(new Error('Fetch not mocked'));
-    
-    // Mock Vite's import.meta.env
-    vi.stubGlobal('import.meta', {
-      env: {
-        VITE_CONFIG_GIST_URL: undefined,
-        MODE: 'test',
-        DEV: true
-      }
-    });
+  beforeAll(() => {
+    // Mock console methods to suppress expected logs
+    vi.spyOn(console, 'log').mockImplementation(() => { /* no-op */ });
+    vi.spyOn(console, 'error').mockImplementation(() => { /* no-op */ });
   });
 
-  afterEach(() => {
-    vi.unstubAllGlobals();
+  beforeEach(() => {
+    // Reset mocks before each test
+    vi.resetModules();
     vi.clearAllMocks();
+    
+    // Reset fetch mock
+    global.fetch = vi.fn().mockRejectedValue(new Error('Fetch not mocked'));
+  });
+
+  afterAll(() => {
+    vi.unstubAllGlobals();
+    vi.restoreAllMocks(); // Restore console methods
   });
 
   it('loads default config when no gist URL is provided', async () => {
@@ -54,12 +89,8 @@ describe('ConfigContext', () => {
   });
 
   it('loads and transforms gist config successfully', async () => {
-    // Update env mock with gist URL
-    vi.stubGlobal('import.meta', {
-      env: {
-        VITE_CONFIG_GIST_URL: mockGistUrl
-      }
-    });
+    // Update env through the proxy
+    (import.meta.env as MutableImportMetaEnv).VITE_CONFIG_GIST_URL = mockGistUrl;
 
     // Mock successful gist response
     const mockGistData = {
@@ -104,12 +135,8 @@ describe('ConfigContext', () => {
   });
 
   it('falls back to default config on fetch error', async () => {
-    // Update env mock with gist URL
-    vi.stubGlobal('import.meta', {
-      env: {
-        VITE_CONFIG_GIST_URL: mockGistUrl
-      }
-    });
+    // Update env through the proxy
+    (import.meta.env as MutableImportMetaEnv).VITE_CONFIG_GIST_URL = mockGistUrl;
 
     global.fetch = vi.fn().mockImplementation(() =>
       Promise.reject(new Error('Network error'))
@@ -128,12 +155,8 @@ describe('ConfigContext', () => {
   });
 
   it('handles malformed gist data gracefully', async () => {
-    // Update env mock with gist URL
-    vi.stubGlobal('import.meta', {
-      env: {
-        VITE_CONFIG_GIST_URL: mockGistUrl
-      }
-    });
+    // Update env through the proxy
+    (import.meta.env as MutableImportMetaEnv).VITE_CONFIG_GIST_URL = mockGistUrl;
 
     global.fetch = vi.fn().mockImplementation(() =>
       Promise.resolve({
@@ -155,12 +178,8 @@ describe('ConfigContext', () => {
   });
 
   it('transforms partial gist data correctly', async () => {
-    // Update env mock with gist URL
-    vi.stubGlobal('import.meta', {
-      env: {
-        VITE_CONFIG_GIST_URL: mockGistUrl
-      }
-    });
+    // Update env through the proxy
+    (import.meta.env as MutableImportMetaEnv).VITE_CONFIG_GIST_URL = mockGistUrl;
 
     // Mock partial data with missing fields
     const mockPartialData = {
