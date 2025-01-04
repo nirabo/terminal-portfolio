@@ -1,0 +1,24 @@
+services:
+  # Development service
+  dev:
+    build:
+      context: .
+      target: builder
+    command: pnpm dev
+    ports:
+      - "3000:3000"
+    volumes:
+      - .:/app
+      - /app/node_modules
+    environment:
+      - NODE_ENV=development
+      - VITE_CONFIG_GIST_URL=${VITE_CONFIG_GIST_URL}
+
+  # Production service
+  prod:
+    build: .
+    ports:
+      - "80:80"
+    environment:
+      - NODE_ENV=production
+      - VITE_CONFIG_GIST_URL=${VITE_CONFIG_GIST_URL}

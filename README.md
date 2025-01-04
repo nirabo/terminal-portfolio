@@ -111,3 +111,43 @@ otherwise it will fall back to using the local configuration.
 This project was inspired by:
 - [term m4tt72](https://term.m4tt72.com/)
 - [Forrest](https://fkcodes.com/)
+
+## Docker Setup
+
+You can run this application using Docker in both development and production modes.
+
+### Prerequisites
+
+- Docker
+- Docker Compose
+
+### Development
+
+1. Copy the environment file:
+   ```bash
+   cp .env.example .env
+   ```
+
+2. Update the `.env` file with your configuration
+
+3. Start the development container:
+   ```bash
+   docker compose up dev
+   ```
+
+The development server will be available at http://localhost:3000
+
+### Production
+
+1. Build and start the production container:
+   ```bash
+   docker compose up prod -d
+   ```
+
+The production build will be available at http://localhost:80
+
+### Environment Variables
+
+- `VITE_CONFIG_GIST_URL`: Your GitHub Gist URL for configuration
+- `NODE_ENV`: Environment mode (development/production)
+- `PORT`: Port number (optional, defaults to 3000 for dev and 80 for prod)

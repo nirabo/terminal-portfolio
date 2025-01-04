@@ -27,3 +27,9 @@ dist-ssr
 config.json
 # Environment variables
 .env
+.env.*
+!.env.example
+
+# Docker
+.docker/
+docker-compose.override.yml
