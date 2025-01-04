@@ -1,20 +1,20 @@
-import {
-  Cmd,
-  HeroContainer,
-  Link,
-  Seperator,
-} from "../styles/Welcome.styled";
-import { useConfig } from "../../ConfigContext";
+import { Cmd, HeroContainer, Link, Seperator } from "../styles/Welcome.styled";
 
 const Welcome: React.FC = () => {
-  const { githubRepo } = useConfig().personal;
   return (
     <HeroContainer data-testid="welcome">
       <div className="info-section">
         <Seperator>----</Seperator>
         <div>
           This project's source code can be found in this project's{" "}
-          <Link href={githubRepo}>GitHub repo</Link>
+          <Link
+            href={
+              import.meta.env.VITE_GITHUB_REPO ||
+              "https://github.com/yourusername/terminal-portfolio"
+            }
+          >
+            GitHub repo
+          </Link>
           .
         </div>
         <Seperator>----</Seperator>
