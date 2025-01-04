@@ -1,14 +1,66 @@
-# Terminal Portfolio Website by Sat Naing
+# Terminal Portfolio Website
 
-![Terminal Portfolio Website by Sat Naing](https://user-images.githubusercontent.com/53733092/194220661-e2ff8b4c-f64a-4b64-a836-c52fae6bbcda.png)
+A terminal-style portfolio website built with React, TypeScript and Styled-Components. Features multiple themes and keyboard shortcuts for enhanced functionality.
 
-![ts](https://badgen.net/badge/Built%20With/TypeScript/blue?style=flat-square)
-[![Netlify Status](https://api.netlify.com/api/v1/badges/81fdb91d-c06f-46c2-b18d-dfc6f090f281/deploy-status)](https://app.netlify.com/sites/terminal-sn/deploys)
-![Gitmoji](https://img.shields.io/badge/gitmoji-%20😜%20😍-FFDD67.svg?style=flat-square)
+## Personalization
 
-My perfolio website in terminal version developed with React, TypeScript and Styled-Components. Multiple themes supported and keyboard shortcuts can be used for some functionalities.
+The portfolio is fully configurable through a JSON configuration file. You can customize both personal information and system settings:
 
-Blog Post: https://satnaing.dev/blog/posts/how-do-i-develop-my-terminal-portfolio-website-with-react
+### Configuration Options
+
+```json
+{
+  "personal": {
+    "name": "Your name",
+    "jobTitle": "Your role",
+    "location": "Your location",
+    "description": "Brief bio",
+    "email": "your.email@example.com",
+    "education": [...],
+    "projects": [...],
+    "socials": [...]
+  },
+  "system": {
+    "homedir": "/home/username",
+    "gui": {
+      "url": "https://your-portfolio-website.com"
+    },
+    "terminal": {
+      "user": "guest",
+      "host": "portfolio"
+    }
+  }
+}
+```
+
+### Setting Up Your Configuration
+
+1. Option 1 - Using a GitHub Gist (Recommended):
+   - Go to https://gist.github.com
+   - Create a new public Gist named `config.json`
+   - Copy the contents from `config.template.json` and update with your information
+   - Save the Gist and copy the raw URL (click the "Raw" button)
+   - Create a `.env` file in the root directory:
+     ```bash
+     echo "VITE_CONFIG_GIST_URL=<your-gist-raw-url>" > .env
+     ```
+   
+   Note: Make sure to use the "Raw" URL from your Gist (click the "Raw" button and copy the URL).
+   The app will automatically handle fetching the configuration using a CORS proxy.
+
+2. Option 2 - Using Local Config:
+   - Copy `config.template.json` to create your own configuration:
+     ```bash
+     cp config.template.json config.json
+     ```
+   - Update the values in `config.json` with your information
+
+### System Customization
+
+The `system` section in the config allows you to customize:
+- Terminal appearance (`user@host` display)
+- Home directory path (shown in pwd command)
+- GUI website URL (opened by 'gui' command)
 
 ## Features
 
@@ -32,53 +84,30 @@ Blog Post: https://satnaing.dev/blog/posts/how-do-i-develop-my-terminal-portfoli
 ## Multiple Themes
 
 Currently, this website supports 6 themes. Type `themes` in the terminal for more info.
-![terminal-portfolio-themes](https://user-images.githubusercontent.com/53733092/194221801-94f1c28b-4865-4b7f-a73e-d41132519bea.png)
-
-## Lighthouse Score
-
-<p align="center">
-<img width="710" alt="Sat Naing Terminal Lighthouse Score" src="public/lighthouse-result.svg">
-</p>
 
 ## Running Locally
 
-Clone the project
+Fork or clone this repository to create your own terminal portfolio:
 
 ```bash
-git clone https://github.com/satnaing/terminal-portfolio.git
-```
+# Clone the repository
+git clone https://github.com/yourusername/terminal-portfolio.git
 
-Go to the project directory
-
-```bash
+# Navigate to project directory
 cd terminal-portfolio
-```
 
-Remove remote origin
-
-```bash
-git remote remove origin
-```
-
-Install dependencies
-
-```bash
+# Install dependencies
 npm install
-```
 
-Start the server
-
-```bash
+# Start the development server
 npm run dev
 ```
 
-## Inspiration and Credits
+The portfolio will first try to load configuration from the Gist URL if provided,
+otherwise it will fall back to using the local configuration.
 
-Here are some inspiration for this kind of terminal website. Only some features and functionalities are inspired by these following websites. All codes are written on my own.
+## Credits
 
+This project was inspired by:
 - [term m4tt72](https://term.m4tt72.com/)
 - [Forrest](https://fkcodes.com/)
-
-## Author
-
-- [@satnaing](https://satnaing.dev)

@@ -1,33 +1,20 @@
 import { EduIntro, EduList } from "../styles/Education.styled";
 import { Wrapper } from "../styles/Output.styled";
+import { useConfig } from "../../ConfigContext";
 
 const Education: React.FC = () => {
+  const { education } = useConfig().personal;
   return (
     <Wrapper data-testid="education">
       <EduIntro>Here is my education background!</EduIntro>
-      {eduBg.map(({ title, desc }) => (
-        <EduList key={title}>
-          <div className="title">{title}</div>
-          <div className="desc">{desc}</div>
+      {education.map(({ institution, degree, year }) => (
+        <EduList key={institution}>
+          <div className="title">{degree}</div>
+          <div className="desc">{institution} | {year}</div>
         </EduList>
       ))}
     </Wrapper>
   );
 };
-
-const eduBg = [
-  {
-    title: "B.Sc (Hons) in Computing",
-    desc: "Edinburgh Napier University | 2018 ~ 2019",
-  },
-  {
-    title: "HND in Computing & System Development",
-    desc: "Info Myanmar University | 2016 - 2018",
-  },
-  {
-    title: "IELTS 6.5",
-    desc: "British Council Myanmar | 2017",
-  },
-];
 
 export default Education;

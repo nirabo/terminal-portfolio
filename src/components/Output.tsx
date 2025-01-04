@@ -14,6 +14,7 @@ import Themes from "./commands/Themes";
 import { OutputContainer, UsageDiv } from "./styles/Output.styled";
 import { termContext } from "./Terminal";
 import { useContext } from "react";
+import { useConfig } from "../ConfigContext";
 
 type Props = {
   index: number;
@@ -22,6 +23,7 @@ type Props = {
 
 const Output: React.FC<Props> = ({ index, cmd }) => {
   const { arg } = useContext(termContext);
+  const config = useConfig();
 
   const specialCmds = ["projects", "socials", "themes", "echo"];
 
@@ -43,11 +45,11 @@ const Output: React.FC<Props> = ({ index, cmd }) => {
           help: <Help />,
           history: <History />,
           projects: <Projects />,
-          pwd: <GeneralOutput>/home/satnaing</GeneralOutput>,
+          pwd: <GeneralOutput>{config?.system?.homedir || '/home/user'}</GeneralOutput>,
           socials: <Socials />,
           themes: <Themes />,
           welcome: <Welcome />,
-          whoami: <GeneralOutput>visitor</GeneralOutput>,
+          whoami: <GeneralOutput>{config?.system?.terminal?.user || 'guest'}</GeneralOutput>,
         }[cmd]
       }
     </OutputContainer>

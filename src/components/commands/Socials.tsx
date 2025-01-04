@@ -9,9 +9,11 @@ import {
 } from "../../utils/funcs";
 import { termContext } from "../Terminal";
 import Usage from "../Usage";
+import { useConfig } from "../../ConfigContext";
 
 const Socials: React.FC = () => {
   const { arg, history, rerender } = useContext(termContext);
+  const { socials } = useConfig().personal;
 
   /* ===== get current command ===== */
   const currentCommand = getCurrentCmdArry(history);
@@ -19,27 +21,29 @@ const Socials: React.FC = () => {
   /* ===== check current command makes redirect ===== */
   useEffect(() => {
     if (checkRedirect(rerender, currentCommand, "socials")) {
-      socials.forEach(({ id, url }) => {
-        id === parseInt(arg[1]) && window.open(url, "_blank");
+      socials.forEach(({ url }, index) => {
+        index === parseInt(arg[1]) - 1 && window.open(url, "_blank");
       });
     }
-  }, [arg, rerender, currentCommand]);
+  }, [arg, rerender, currentCommand, socials]);
 
   /* ===== check arg is valid ===== */
-  const checkArg = () =>
-    isArgInvalid(arg, "go", ["1", "2", "3", "4"]) ? (
+  const checkArg = () => {
+    const validArgs = Array.from({ length: socials.length }, (_, i) => (i + 1).toString());
+    return isArgInvalid(arg, "go", validArgs) ? (
       <Usage cmd="socials" />
     ) : null;
+  };
 
   return arg.length > 0 || arg.length > 2 ? (
     checkArg()
   ) : (
     <HelpWrapper data-testid="socials">
       <ProjectsIntro>Here are my social links</ProjectsIntro>
-      {socials.map(({ id, title, url, tab }) => (
-        <CmdList key={title}>
-          <Cmd>{`${id}. ${title}`}</Cmd>
-          {generateTabs(tab)}
+      {socials.map(({ platform, url }, index) => (
+        <CmdList key={platform}>
+          <Cmd>{`${index + 1}. ${platform}`}</Cmd>
+          {generateTabs(3)}
           <CmdDesc>- {url}</CmdDesc>
         </CmdList>
       ))}
@@ -47,32 +51,5 @@ const Socials: React.FC = () => {
     </HelpWrapper>
   );
 };
-
-const socials = [
-  {
-    id: 1,
-    title: "GitHub",
-    url: "https://github.com/satnaing",
-    tab: 3,
-  },
-  {
-    id: 2,
-    title: "Dev.to",
-    url: "https://dev.to/satnaing",
-    tab: 3,
-  },
-  {
-    id: 3,
-    title: "Facebook",
-    url: "https://www.facebook.com/satnaing.dev",
-    tab: 1,
-  },
-  {
-    id: 4,
-    title: "Instagram",
-    url: "https://instagram.com/satnaing.dev",
-    tab: 0,
-  },
-];
 
 export default Socials;

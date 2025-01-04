@@ -12,9 +12,11 @@ import {
 } from "../styles/Projects.styled";
 import { termContext } from "../Terminal";
 import Usage from "../Usage";
+import { useConfig } from "../../ConfigContext";
 
 const Projects: React.FC = () => {
   const { arg, history, rerender } = useContext(termContext);
+  const { projects } = useConfig().personal;
 
   /* ===== get current command ===== */
   const currentCommand = getCurrentCmdArry(history);
@@ -22,17 +24,19 @@ const Projects: React.FC = () => {
   /* ===== check current command is redirect ===== */
   useEffect(() => {
     if (checkRedirect(rerender, currentCommand, "projects")) {
-      projects.forEach(({ id, url }) => {
-        id === parseInt(arg[1]) && window.open(url, "_blank");
+      projects.forEach(({ url }, index) => {
+        index === parseInt(arg[1]) - 1 && window.open(url, "_blank");
       });
     }
-  }, [arg, rerender, currentCommand]);
+  }, [arg, rerender, currentCommand, projects]);
 
   /* ===== check arg is valid ===== */
-  const checkArg = () =>
-    isArgInvalid(arg, "go", ["1", "2", "3", "4"]) ? (
+  const checkArg = () => {
+    const validArgs = Array.from({ length: projects.length }, (_, i) => (i + 1).toString());
+    return isArgInvalid(arg, "go", validArgs) ? (
       <Usage cmd="projects" />
     ) : null;
+  };
 
   return arg.length > 0 || arg.length > 2 ? (
     checkArg()
@@ -40,44 +44,17 @@ const Projects: React.FC = () => {
     <div data-testid="projects">
       <ProjectsIntro>
         “Talk is cheap. Show me the code”? I got you. <br />
-        Here are some of my projects you shouldn't misss
+        Here are some of my projects you shouldn't miss
       </ProjectsIntro>
-      {projects.map(({ id, title, desc }) => (
-        <ProjectContainer key={id}>
-          <ProjectTitle>{`${id}. ${title}`}</ProjectTitle>
-          <ProjectDesc>{desc}</ProjectDesc>
+      {projects.map(({ title, description }, index) => (
+        <ProjectContainer key={index}>
+          <ProjectTitle>{`${index + 1}. ${title}`}</ProjectTitle>
+          <ProjectDesc>{description}</ProjectDesc>
         </ProjectContainer>
       ))}
       <Usage cmd="projects" marginY />
     </div>
   );
 };
-
-const projects = [
-  {
-    id: 1,
-    title: "Sat Naing's Blog",
-    desc: "My personal blog where I can write down my thoughts and experiences.",
-    url: "https://satnaing.dev/blog/",
-  },
-  {
-    id: 2,
-    title: "Haru Fashion",
-    desc: "An ecommerce web application where users can browse various products and make purchases.",
-    url: "https://haru-fashion.vercel.app/",
-  },
-  {
-    id: 3,
-    title: "Haru API",
-    desc: "A RESTful API developed for the Haru fashion ecommerce project.",
-    url: "https://satnaing.github.io/haru-api/",
-  },
-  {
-    id: 4,
-    title: "AstroPaper Blog Theme",
-    desc: "A minimal, accessible and SEO-friendly Astro blog theme.",
-    url: "https://astro-paper.pages.dev/",
-  },
-];
 
 export default Projects;

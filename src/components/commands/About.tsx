@@ -3,20 +3,20 @@ import {
   HighlightAlt,
   HighlightSpan,
 } from "../styles/About.styled";
+import { useConfig } from "../../ConfigContext";
 
 const About: React.FC = () => {
+  const { name, jobTitle, location, description } = useConfig().personal;
   return (
     <AboutWrapper data-testid="about">
       <p>
-        Hi, my name is <HighlightSpan>Sat Naing</HighlightSpan>!
+        Hi, my name is <HighlightSpan>{name}</HighlightSpan>!
       </p>
       <p>
-        I'm <HighlightAlt>a full-stack developer</HighlightAlt> based in Yangon,
-        Myanmar.
+        I'm <HighlightAlt>{jobTitle}</HighlightAlt> based in {location}.
       </p>
       <p>
-        I am passionate about writing codes and <br />
-        developing web applications to solve real-life challenges.
+        {description}
       </p>
     </AboutWrapper>
   );
