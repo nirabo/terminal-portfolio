@@ -30,6 +30,9 @@ services:
     build:
       context: .
       target: production
+      args:
+        VITE_CONFIG_GIST_URL: ${VITE_CONFIG_GIST_URL}
+        VITE_GITHUB_REPO: ${VITE_GITHUB_REPO}
     ports:
       - "5080:80"
     environment:

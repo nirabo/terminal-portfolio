@@ -27,8 +27,15 @@ COPY package.json pnpm-lock.yaml ./
 # Copy source code
 COPY . .
 
+# Set build arguments
+ARG VITE_CONFIG_GIST_URL
+ARG VITE_GITHUB_REPO
+
 # Install dependencies and build
-ENV SKIP_HUSKY=1
+ENV SKIP_HUSKY=1 \
+    VITE_CONFIG_GIST_URL=${VITE_CONFIG_GIST_URL} \
+    VITE_GITHUB_REPO=${VITE_GITHUB_REPO}
+
 RUN pnpm install --frozen-lockfile --ignore-scripts && \
     NODE_ENV=production pnpm build && \
     rm -rf src/test && \
